@@ -2,17 +2,23 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                echo 'Checkout Code'
+                sh 'echo Building Application'
+                sh 'date'
             }
         }
 
-        stage('Build') {
+        stage('Test') {
             steps {
-                sh 'pwd'
-                sh 'ls -lrt'
+                sh 'echo Running Tests'
+                sh 'hostname'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'echo Deploying Application'
             }
         }
     }
