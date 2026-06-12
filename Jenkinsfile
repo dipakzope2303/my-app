@@ -2,9 +2,22 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+
+        stage('Checkout') {
             steps {
-                sh 'echo Build Triggered by Webhook'
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t my-app:v1 .'
+            }
+        }
+
+        stage('Verify Image') {
+            steps {
+                sh 'docker images'
             }
         }
     }
