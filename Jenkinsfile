@@ -1,8 +1,8 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "dipak2303/my-app:v1"
+    tools {
+        sonarQube 'SonarScanner'
     }
 
     stages {
@@ -13,29 +13,22 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('SonarQube Scan') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
-            }
-        }
-
-        stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
+                withSonarQubeEnv('SonarQube') {
                     sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    sonar-scanner \
+                    -Dsonar.projectKey=my-app \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://44.210.131.41:9000
                     '''
                 }
             }
         }
 
-        stage('Push Image') {
+        stage('Build Docker Image') {
             steps {
-                sh 'docker push $IMAGE_NAME'
+                sh 'docker build -t dipak2303/my-app:v1 .'
             }
         }
     }
