@@ -32,3 +32,17 @@ pipeline {
         }
     }
 }
+
+stage('Deploy Container') {
+    steps {
+        sh '''
+        docker stop my-app || true
+        docker rm my-app || true
+
+        docker run -d \
+        --name my-app \
+        -p 80:80 \
+        dipak2303/my-app:v1
+        '''
+    }
+}
