@@ -30,5 +30,43 @@ pipeline {
                 sh 'docker build -t dipak2303/my-app:v1 .'
             }
         }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh 'docker push dipak2303/my-app:v1'
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                docker stop my-app || true
+                docker rm my-app || true
+
+                docker run -d \
+                --name my-app \
+                -p 80:80 \
+                dipak2303/my-app:v1
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh 'docker ps'
+            }
+        }
     }
 }
