@@ -68,22 +68,22 @@ pipeline {
                 sh 'docker ps'
             }
         }
-    }
-}
+         
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([string(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_CONTENT')]) {
+                    sh '''
+                    mkdir -p ~/.kube
+                    echo "$KUBECONFIG_CONTENT" > ~/.kube/config
 
-stage('Deploy to Kubernetes') {
-    steps {
-        withCredentials([string(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_CONTENT')]) {
-            sh '''
-            mkdir -p ~/.kube
-            echo "$KUBECONFIG_CONTENT" > ~/.kube/config
+                    kubectl apply -f k8s/deployment.yaml
+                    kubectl apply -f k8s/service.yaml
 
-            kubectl apply -f k8s/deployment.yaml
-            kubectl apply -f k8s/service.yaml
-
-            kubectl get pods
-            kubectl get svc
-            '''
+                    kubectl get pods
+                    kubectl get svc
+                    '''
+                }
+            }
         }
     }
-}
+}   
